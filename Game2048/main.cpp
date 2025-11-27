@@ -2,8 +2,8 @@
 #include <stdint.h>
 #include <stddef.h>
 #include <random>
-#include <string.h>
 #include <span>
+#include <algorithm>
 
 /*
 游戏规则:
@@ -85,7 +85,7 @@ private:
 	void ClearTile(void)
 	{
 		//清除格子数据
-		memset(u64Tile, 0, sizeof(u64Tile));
+		std::ranges::fill(u64TileFlatView, (uint64_t)0);
 		//设置空余的格子数为最大值
 		u64EmptyCount = u64TotalSize;
 	}
