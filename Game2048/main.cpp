@@ -392,8 +392,8 @@ private:
 
 			return 0;//否则返回0，就当无事发生
 		};
-		ci.RegisterKey({ 'q' }, RestartFunc);
-		ci.RegisterKey({ 'Q' }, RestartFunc);
+		ci.RegisterKey({ 'q' }, QuitFunc);
+		ci.RegisterKey({ 'Q' }, QuitFunc);
 	}
 
 	void StartOrRestart(void)
