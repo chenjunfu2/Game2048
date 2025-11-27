@@ -16,7 +16,8 @@
 每次可以选择上下左右其中一个方向去滑动，每一次滑动，
 所有的数字方块都会往滑动的方向靠拢，
 相同数字的方块在靠拢时会相加合并成一个，
-不同的数字则靠拢堆放
+但是每次移动方向上那一排只会合并相邻的两个，而不会连续合并，
+不同的数字则靠拢堆放，
 最后在剩余的空白处生成一个数字2或者4。
 
 一旦获得任意一个相加后的值为2048的数字，
@@ -118,11 +119,12 @@ public:
 		SpawnNumInEmptySpace();
 	}
 
-	void Print(void)
+	void Print(uint16_t u16StartX = 1, uint16_t u16StartY = 1)//控制台起始坐标，注意不是从0开始的，行列都从1开始
 	{
+		printf("\033[%u;%uH", u16StartY, u16StartX);
 		for (auto &arrRow : u64Tile)
 		{
-			printf("---------------------\n");
+			printf("---------------------\033[%u;%uH", ++u16StartY, u16StartX);
 			for (auto u64Elem : arrRow)
 			{
 				if (u64Elem != 0)
@@ -134,9 +136,9 @@ public:
 					printf("|%-4c", ' ');
 				}
 			}
-			printf("|\n");
+			printf("|\033[%u;%uH", ++u16StartY, u16StartX);
 		}
-		printf("---------------------\n");
+		printf("---------------------\033[%u;%uH", ++u16StartY, u16StartX);
 	}
 
 
@@ -222,15 +224,12 @@ private:
 		return u64Tile[posTarget.i64Y][posTarget.i64X];
 	}
 
-	bool MoveAndAddTile(Direction dir, const Pos &posTarget, bool &bMerge)
+	bool MoveAndAddTile(const Pos &posMove, const Pos &posTarget, bool &bMerge)
 	{
 		if (GetTail(posTarget) == 0)
 		{
 			return false;
 		}
-
-		//获取移动量
-		const auto &posMove = arrMoveDir[dir];
 
 		//新位置
 		Pos posNew = posTarget;
@@ -279,12 +278,12 @@ private:
 	bool MoveDn(void)
 	{
 		bool bMove = false;
-		bool bMerge = true;//默认状态为可合并
-		for (int64_t i64Cow = u64Height - 1 - 1; i64Cow > 0 - 1; i64Cow += -1)
+		for (int64_t X = 0; X < u64Width; X += 1)
 		{
-			for (int64_t i64Row = 0; i64Row != u64Width; i64Row += 1)
+			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中只能存在一次合并，多排之间互不影响
+			for (int64_t Y = u64Height - 1 - 1; Y > 0 - 1; Y += -1)//这里从u64Height - 1 - 1访问是因为最后一排本身就是顶格的，没有移动的必要
 			{
-				bool bRet = MoveAndAddTile(Direction::Dn, { i64Row,i64Cow }, bMerge);//额外保存变量，防止短路求值跳过调用
+				bool bRet = MoveAndAddTile(arrMoveDir[Direction::Dn], { X, Y }, bMerge);//额外保存变量，防止短路求值跳过调用
 				bMove |= bRet;
 			}
 		}
@@ -295,12 +294,12 @@ private:
 	bool MoveUp(void)
 	{
 		bool bMove = false;
-		bool bMerge = true;//默认状态为可合并
-		for (int64_t i64Cow = 0LL + 1; i64Cow < u64Height; i64Cow += 1)
+		for (int64_t X = 0; X < u64Width; X += 1)
 		{
-			for (int64_t i64Row = 0; i64Row != u64Width; i64Row += 1)
+			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中只能存在一次合并，多排之间互不影响
+			for (int64_t Y = 0LL + 1; Y < u64Height; Y += 1)//这里从0LL + 1访问是因为第一排本身就是顶格的，没有移动的必要
 			{
-				bool bRet = MoveAndAddTile(Direction::Up, { i64Row,i64Cow }, bMerge);//额外保存变量，防止短路求值跳过调用
+				bool bRet = MoveAndAddTile(arrMoveDir[Direction::Up], { X, Y }, bMerge);//额外保存变量，防止短路求值跳过调用
 				bMove |= bRet;
 			}
 		}
@@ -311,12 +310,12 @@ private:
 	bool MoveRt(void)
 	{
 		bool bMove = false;
-		bool bMerge = true;//默认状态为可合并
-		for (int64_t i64Row = u64Width - 1 - 1; i64Row > 0 - 1; i64Row += -1)
+		for (int64_t Y = 0; Y < u64Height; Y += 1)
 		{
-			for (int64_t i64Cow = 0; i64Cow != u64Height; i64Cow += 1)
+			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中只能存在一次合并，多排之间互不影响
+			for (int64_t X = u64Width - 1 - 1; X > 0 - 1; X += -1)//这里从u64Width - 1 - 1访问是因为最后一排本身就是顶格的，没有移动的必要
 			{
-				bool bRet = MoveAndAddTile(Direction::Rt, { i64Row,i64Cow }, bMerge);//额外保存变量，防止短路求值跳过调用
+				bool bRet = MoveAndAddTile(arrMoveDir[Direction::Rt], { X,Y }, bMerge);//额外保存变量，防止短路求值跳过调用
 				bMove |= bRet;
 			}
 		}
@@ -327,12 +326,12 @@ private:
 	bool MoveLt(void)
 	{
 		bool bMove = false;
-		bool bMerge = true;//默认状态为可合并
-		for (int64_t i64Row = 0LL + 1; i64Row < u64Width; i64Row += 1)
+		for (int64_t Y = 0; Y < u64Height; Y += 1)
 		{
-			for (int64_t i64Cow = 0; i64Cow != u64Height; i64Cow += 1)
+			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中只能存在一次合并，多排之间互不影响
+			for (int64_t X = 0LL + 1; X < u64Width; X += 1)//这里从0LL + 1访问是因为第一排本身就是顶格的，没有移动的必要
 			{
-				bool bRet = MoveAndAddTile(Direction::Lt, { i64Row,i64Cow }, bMerge);//额外保存变量，防止短路求值跳过调用
+				bool bRet = MoveAndAddTile(arrMoveDir[Direction::Lt], { X,Y }, bMerge);//额外保存变量，防止短路求值跳过调用
 				bMove |= bRet;
 			}
 		}
@@ -377,12 +376,13 @@ public:
 int main(void)
 {
 	uint32_t seed = std::random_device{}();
-	printf("seed:%u\n", seed);
 	Game2048 game(seed);
 
 	game.Start();
 	game.Print();
+	printf("seed:%u\n", seed);//第一次打印后输出种子，防止被覆盖
 
+	//注册按键
 	Console_Input ci;
 
 	ci.RegisterKey({ 'w' }, [&](auto &) -> long { return game.Move(Game2048::Up);});
@@ -397,6 +397,7 @@ int main(void)
 	ci.RegisterKey({ 'd' }, [&](auto &) -> long { return game.Move(Game2048::Rt);});
 	ci.RegisterKey({ 'D' }, [&](auto &) -> long { return game.Move(Game2048::Rt);});
 
+	//游戏循环
 	while (true)
 	{
 		if (ci.AtLeastOne() != 0)
