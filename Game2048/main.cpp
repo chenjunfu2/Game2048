@@ -601,14 +601,15 @@ bool EnableVirtualTerminalProcessing(void)
 }
 
 // 自动启用虚拟终端处理的宏
-#define INIT_CONSOLE() \
-	do { \
-	    if (!EnableVirtualTerminalProcessing()) { \
+#define INIT_CONSOLE()\
+	do {\
+	    if (!EnableVirtualTerminalProcessing())\
+		{\
 	        exit(-1);\
-	    } \
+	    }\
 	} while(0)
 #else
-//非Windows平台（Linux/macOS）通常默认支持ANSI转义序列，无需额外操作
+//非Windows平台通常默认支持ANSI转义序列，无需额外操作
 #define INIT_CONSOLE() (void)0  //空操作
 #endif
 
