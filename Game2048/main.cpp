@@ -255,6 +255,11 @@ private:
 			return false;
 		}
 
+		if (GetTail(posNew) == GetTail(posTarget))
+		{
+			++u64EmptyCount;//合并后让出空间
+		}
+
 		//直接把值加到当前位置
 		//这样做，如果当前是0就相当于把值移动到当前位置，否则相当于合并值到当前位置，不用区分其他情况
 		GetTail(posNew) += GetTail(posTarget);
