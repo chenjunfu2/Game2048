@@ -577,9 +577,46 @@ public:
 	}
 };
 
+#ifdef _WIN32
+#include <windows.h>
+//Windows平台下启用虚拟终端序列的函数
+bool EnableVirtualTerminalProcessing(void)
+{
+	HANDLE hOut = GetStdHandle(STD_OUTPUT_HANDLE);
+	if (hOut == INVALID_HANDLE_VALUE)
+	{
+		return false;
+	}
+
+	DWORD dwMode = 0;
+	if (!GetConsoleMode(hOut, &dwMode))
+	{
+		return false;
+	}
+
+	dwMode |= ENABLE_VIRTUAL_TERMINAL_PROCESSING;//启用虚拟终端序列
+	dwMode |= DISABLE_NEWLINE_AUTO_RETURN;//关闭自动换行
+
+	return SetConsoleMode(hOut, dwMode);
+}
+
+// 自动启用虚拟终端处理的宏
+#define INIT_CONSOLE() \
+	do { \
+	    if (!EnableVirtualTerminalProcessing()) { \
+	        exit(-1);\
+	    } \
+	} while(0)
+#else
+//非Windows平台（Linux/macOS）通常默认支持ANSI转义序列，无需额外操作
+#define INIT_CONSOLE() (void)0  //空操作
+#endif
+
 
 int main(void)
 {
+	INIT_CONSOLE();//Windows福报
+
 	Game2048 game(std::random_device{}());
 
 	//初始化
