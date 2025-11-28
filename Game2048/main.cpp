@@ -5,7 +5,11 @@
 #include <span>
 #include <algorithm>
 
+#ifdef _WIN32
 #include "Console_Input.hpp"
+#elif defined(__linux__)
+#include "Console_Input_Linux.hpp"
+#endif
 
 /*
 游戏规则:
@@ -366,7 +370,7 @@ private:
 
 		//询问是否重开
 		printf("\033[%u;%uH%s (Y/N)", ++u16StartY, u16StartX, pPrompt);
-		auto waitKey = ci.WaitForKeys({ {'y'},{'Y'},{'n'},{'N'} });
+		auto waitKey = ci.WaitForKeys({ Console_Input::Keys::Y,Console_Input::Keys::SHIFT_Y,Console_Input::Keys::N,Console_Input::Keys::SHIFT_N });
 
 		//保存按键信息
 		bool bRet = false;
@@ -448,39 +452,38 @@ private:
 	void RegisterKey(void)
 	{
 		//注册按键
-		using CILC = Console_Input::LeadCode;
 
 		auto UpFunc = [&](auto &) -> long
 		{
 			return this->ProcessMove(Game2048::Up);
 		};
-		ci.RegisterKey({ 'w' }, UpFunc);
-		ci.RegisterKey({ 'W' }, UpFunc);
-		ci.RegisterKey({ 72, CILC::Code_E0 }, UpFunc);
+		ci.RegisterKey(Console_Input::Keys::W, UpFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_W, UpFunc);
+		ci.RegisterKey(Console_Input::Keys::UP_ARROW, UpFunc);
 
 		auto LtFunc = [&](auto &) -> long
 		{
 			return this->ProcessMove(Game2048::Lt);
 		};
-		ci.RegisterKey({ 'a' }, LtFunc);
-		ci.RegisterKey({ 'A' }, LtFunc);
-		ci.RegisterKey({ 75, CILC::Code_E0 }, LtFunc);
+		ci.RegisterKey(Console_Input::Keys::A, LtFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_A, LtFunc);
+		ci.RegisterKey(Console_Input::Keys::LEFT_ARROW, LtFunc);
 
 		auto DnFunc = [&](auto &) -> long
 		{
 			return this->ProcessMove(Game2048::Dn);
 		};
-		ci.RegisterKey({ 's' }, DnFunc);
-		ci.RegisterKey({ 'S' }, DnFunc);
-		ci.RegisterKey({ 80, CILC::Code_E0 }, DnFunc);
+		ci.RegisterKey(Console_Input::Keys::S, DnFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_S, DnFunc);
+		ci.RegisterKey(Console_Input::Keys::DOWN_ARROW, DnFunc);
 
 		auto RtFunc = [&](auto &) -> long
 		{
 			return this->ProcessMove(Game2048::Rt);
 		};
-		ci.RegisterKey({ 'd' }, RtFunc);
-		ci.RegisterKey({ 'D' }, RtFunc);
-		ci.RegisterKey({ 77, CILC::Code_E0 }, RtFunc);
+		ci.RegisterKey(Console_Input::Keys::D, RtFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_D, RtFunc);
+		ci.RegisterKey(Console_Input::Keys::RIGHT_ARROW, RtFunc);
 
 		auto RestartFunc = [&](auto &) -> long
 		{
@@ -491,8 +494,8 @@ private:
 
 			return 0;//任何时候此调用都返回0，不论是否重开，因为不触发外部绘制（重开内部会绘制）
 		};
-		ci.RegisterKey({ 'r' }, RestartFunc);
-		ci.RegisterKey({ 'R' }, RestartFunc);
+		ci.RegisterKey(Console_Input::Keys::R, RestartFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_R, RestartFunc);
 
 		auto QuitFunc = [&](auto &) -> long
 		{
@@ -503,8 +506,8 @@ private:
 
 			return 0;//否则返回0，就当无事发生
 		};
-		ci.RegisterKey({ 'q' }, QuitFunc);
-		ci.RegisterKey({ 'Q' }, QuitFunc);
+		ci.RegisterKey(Console_Input::Keys::Q, QuitFunc);
+		ci.RegisterKey(Console_Input::Keys::SHIFT_Q, QuitFunc);
 	}
 
 public:
