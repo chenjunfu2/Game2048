@@ -16,9 +16,13 @@
 玩家每次可以选择上下左右其中一个方向去滑动，
 每一次滑动所有的数字方块都会往滑动的方向靠拢，
 相同数字的方块在靠拢时会相加合并成一个，不同的数字则靠拢堆放，
-每次移动方向上的每一排，只会合并最开始的两个相同数字，
-即便合并后下一个数字可以继续合并，也只会进行堆放，
+每次移动方向上的每一排，已经合并过的数字不会与下一个合并，
+即便下一个数字的值可以继续合并，也只会进行堆放，
 移动或合并后，在剩余的空白处生成一个数字2或者4。
+注解：
+	一排2 2 2 2合并之后是4 4，而不是8
+	一排2 2 4  合并之后是4 4，而不是8
+	也就是已经合并过的数字不会参与下次合并
 
 一旦获得任意一个相加后的值为2048的数字，则游戏成功。
 如果没有任何空白的移动空间，且没有任何相邻的数可以合并，则游戏失败。
@@ -211,7 +215,7 @@ private:
 	}
 
 	//====================移动合并====================
-	bool MoveOrMergeTile(const Pos &posMove, const Pos &posTarget, bool &bMerge)
+	bool MoveOrMergeTile(const Pos &posMove, const Pos &posTarget, bool bMerge)
 	{
 		if (GetTile(posTarget) == 0)
 		{
@@ -250,7 +254,6 @@ private:
 
 		if (GetTile(posNew) == GetTile(posTarget))
 		{
-			bMerge = false;//设置状态为不可合并
 			++u64EmptyCount;//合并后更新空位计数
 		}
 
@@ -300,11 +303,13 @@ private:
 		bool bMove = false;
 		for (int64_t i64Outer = 0; i64Outer != i64OuterEnd; ++i64Outer)//外层循环固定形式
 		{
-			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中只能存在一次合并，多排之间互不影响
+			bool bMerge = true;//默认状态为可合并，对于移动方向的一排中的每两个只能存在一次合并，多排之间互不影响
 			for (int64_t i64Inner = i64InnerBeg; i64Inner != i64InnerEnd; i64Inner += i64InnerStep)//根据实际水平或垂直处理内层
 			{
 				Pos p = bHorizontal ? Pos{ i64Inner, i64Outer } : Pos{ i64Outer, i64Inner };
 				bool bRet = MoveOrMergeTile(arrMoveDir[dMove], p, bMerge);//移动与合并，合并时会设置是否赢，内部不会重复检测当前游戏状态，因为可能同时出现多个2048
+				//实际上，只要确认上一次是否发生过合并，如果发生过，那么本次不允许合并，就会进行堆放，下次则继续允许合并，这样就能完成防止重复合并的逻辑
+				bMerge = !bRet;
 				bMove |= bRet;
 			}
 		}
