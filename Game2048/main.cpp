@@ -107,7 +107,6 @@ private:
 		{ 1, 0},
 	};
 
-
 private:
 	constexpr const static inline uint64_t u64Width = 4;
 	constexpr const static inline uint64_t u64Height = 4;
@@ -610,7 +609,6 @@ bool EnableVirtualTerminalProcessing(void)
 //非Windows平台通常默认支持ANSI转义序列，无需额外操作
 #define INIT_CONSOLE() (void)0  //空操作
 #endif
-
 
 int main(void)
 {
