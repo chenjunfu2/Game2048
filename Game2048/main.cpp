@@ -11,7 +11,7 @@
 游戏规则:
 
 在4*4的界面内，一开始会出现两个数字，这两个数字有可能是2或者4，
-任何时候，数字2出现的概率相对4较大。
+任何时候，数字2出现的概率相对4较大，也就是90%出现2，10%出现4。
 
 玩家每次可以选择上下左右其中一个方向去滑动，
 如果当前方向无法滑动，则什么也不做，
@@ -509,7 +509,7 @@ private:
 
 public:
 	//构造
-	Game2048(uint32_t u32Seed, uint16_t _u16PrintStartX = 1, uint16_t _u16PrintStartY = 1, double dSpawnWeights_2 = 0.8, double dSpawnWeights_4 = 0.2) :
+	Game2048(uint32_t u32Seed, uint16_t _u16PrintStartX = 1, uint16_t _u16PrintStartY = 1, double dSpawnWeights_2 = 0.9, double dSpawnWeights_4 = 0.1) :
 		u64Tile{},
 
 		u64EmptyCount(u64TotalSize),
