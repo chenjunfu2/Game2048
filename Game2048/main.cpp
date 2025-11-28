@@ -580,8 +580,8 @@ public:
 		return true;//返回true继续循环，否则跳出结束程序
 	}
 
-
-
+	//调试
+#ifdef _DEBUG
 	void Debug(void)
 	{
 		u64Tile[0][0] = 2;
@@ -589,8 +589,26 @@ public:
 		u64Tile[0][2] = 2;
 		u64Tile[0][3] = 2;
 
+		u64Tile[1][0] = 2;
+		u64Tile[1][1] = 2;
+		u64Tile[1][2] = 4;
+		u64Tile[1][3] = 0;
+
+		u64Tile[2][0] = 4;
+		u64Tile[2][1] = 2;
+		u64Tile[2][2] = 2;
+		u64Tile[2][3] = 2;
+
+		u64Tile[3][0] = 2;
+		u64Tile[3][1] = 2;
+		u64Tile[3][2] = 0;
+		u64Tile[3][3] = 2;
+
+		u64EmptyCount = 2;
+
 		PrintGameBoard();
 	}
+#endif
 };
 
 #ifdef _WIN32
@@ -638,7 +656,10 @@ int main(void)
 	//初始化
 	game.Init();
 
+	//调试
+#ifdef _DEBUG
 	game.Debug();
+#endif
 	
 	//游戏循环
 	while (game.Loop())
