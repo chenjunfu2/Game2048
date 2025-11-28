@@ -266,7 +266,7 @@ private:
 		//直接把值加到当前位置
 		//这样做，如果当前是0就相当于把值移动到当前位置，否则相当于合并值到当前位置，不用区分其他情况
 		GetTile(posNew) += GetTile(posTarget);
-		GetTile(posTarget) = 0;
+		GetTile(posTarget) = 0;//清除原先的值
 
 		if (GetTile(posNew) == 2048)//如果任何一个合并获得2048
 		{
@@ -320,7 +320,7 @@ private:
 			}
 		}
 
-		if (bMove && enGameStatus == InGame)//移动过且还是游戏状态，如果上面已经赢了，就没必要生成行值了，直接跳过
+		if (bMove && enGameStatus == InGame)//移动过且还是游戏状态，如果上面已经赢了，就没必要生成新值了，直接跳过
 		{
 			SpawnRandomTile();//这里会设置是否输
 		}
