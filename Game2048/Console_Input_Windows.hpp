@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <unordered_map>
 #include <stdexcept>
+#include <optional>
 
 #include <stdio.h>
 #include <conio.h>
@@ -177,8 +178,8 @@ public:
 		return stKeyGet;//顺便返回一下让用户知道是哪个
 	}
 
-	//仅处理一次按键，如果当前按键不存在则直接返回LONG_MIN
-	long Once(void) const//不保证函数会不会抛出异常
+	//仅处理一次按键，可能按键未注册，所以返回std::optional
+	std::optional<long> Once(void) const//不保证函数会不会抛出异常
 	{
 		Key stKetGet = GetTranslateKey();
 
@@ -186,36 +187,38 @@ public:
 		auto it = mapRegisterTable.find(stKetGet);
 		if (it == mapRegisterTable.end())
 		{
-			return LONG_MIN;
+			return {};//构造空optional
 		}
 
 		//不为空则调用
-		return it->second(it->first);
+		return { it->second(it->first) };
 	}
 
 	//等待至少一次成功的按键调用，如果按键不存在则持续循环，直到至少触发一次注册的按键调用
+	//因为必然至少成功一次，所以返回其中的值，而不是std::optional
 	long AtLeastOne(void) const
 	{
-		long lRet = 0;
+		std::optional<long> lRet{};
 		do
 		{
 			lRet = Once();
-		} while (lRet == LONG_MIN);
+		} while (!lRet.has_value());//为空则持续循环直到成功
 
-		return lRet;
+		return lRet.value();
 	}
 
 	//循环处理按键并触发回调，直到抛出异常或回调返回非0值
+	//因为必然至少成功一次，所以返回其中的值，而不是std::optional
 	long Loop(void) const
 	{
-		long lRet = 0;
+		std::optional<long> lRet{};
 
 		do
 		{
 			lRet = Once();
-		} while (lRet == LONG_MIN || lRet == 0);
+		} while (!lRet.has_value() || lRet.value() == 0);
 
-		return lRet;
+		return lRet.value();
 	}
 
 	//等待任一按键被按下
