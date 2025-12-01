@@ -1,6 +1,6 @@
 # 控制台2048小游戏
 使用ANSI终端转义序列（Virtual Terminal Processing）  
-支持Windows与Linux平台  
+支持Windows与Linux平台（Windows可在Releases下获取已编译版本，Linux请自行编译）  
 语言版本CPP20  
 
 # 运行截图（Windows）
