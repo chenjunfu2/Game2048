@@ -27,9 +27,9 @@ bool EnableVirtualTerminalProcessing(void) noexcept
 
 void InitConsole(void) noexcept
 {
-	if (EnableVirtualTerminalProcessing())
+	if (!EnableVirtualTerminalProcessing())
 	{
-		fprintf(stderr, "Fatal error: Console virtual terminal initialization failed.\n\nPress any key to exit...\n");
+		fprintf(stderr, "Fatal error:\nConsole virtual terminal initialization failed.\n\nPress any key to exit...\n");
 		Console_Input::WaitAnyKey();
 		exit(-1);
 	}
