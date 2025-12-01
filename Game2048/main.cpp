@@ -11,7 +11,7 @@ bool EnableVirtualTerminalProcessing(void) noexcept
 	if (hOut == INVALID_HANDLE_VALUE)
 	{
 		return false;
-		}
+	}
 
 	DWORD dwMode = 0;
 	if (!GetConsoleMode(hOut, &dwMode))
