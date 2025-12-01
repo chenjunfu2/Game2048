@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <functional>
 #include <unordered_set>
@@ -11,7 +11,11 @@
 #include <limits.h>
 #include <stdint.h>
 
+//保证未定义的情况下才定义，且在自己定义的情况下清除定义
+#ifndef EOL
 #define EOL -1
+#define MY_DEF_EOL
+#endif // !EOL
 
 class Console_Input//用户交互
 {
@@ -48,29 +52,6 @@ public:
 			//求hash
 			return std::hash<uint16_t>{}(u16HashCode);
 		}
-	};
-
-	struct Keys {
-		constexpr static const Key W = { 'w', Code_NL };
-		constexpr static const Key SHIFT_W = { 'W', Code_NL };
-		constexpr static const Key UP_ARROW = { 72, Code_E0 };
-		constexpr static const Key A = { 'a', Code_NL };
-		constexpr static const Key SHIFT_A = { 'A', Code_NL };
-		constexpr static const Key LEFT_ARROW = { 75, Code_E0 };
-		constexpr static const Key S = { 's', Code_NL };
-		constexpr static const Key SHIFT_S = { 'S', Code_NL };
-		constexpr static const Key DOWN_ARROW = { 80, Code_E0 };
-		constexpr static const Key D = { 'd', Code_NL };
-		constexpr static const Key SHIFT_D = { 'D', Code_NL };
-		constexpr static const Key RIGHT_ARROW = { 77, Code_E0 };
-		constexpr static const Key Y = { 'y', Code_NL };
-		constexpr static const Key N = { 'n', Code_NL };
-		constexpr static const Key Q = { 'q', Code_NL };
-		constexpr static const Key R = { 'r', Code_NL };
-		constexpr static const Key SHIFT_Y = { 'Y', Code_NL };
-		constexpr static const Key SHIFT_N = { 'N', Code_NL };
-		constexpr static const Key SHIFT_Q = { 'Q', Code_NL };
-		constexpr static const Key SHIFT_R = { 'R', Code_NL };
 	};
 
 	struct KeyHash
@@ -196,7 +177,7 @@ public:
 		return stKeyGet;//顺便返回一下让用户知道是哪个
 	}
 
-	//处理一次按键并触发回调并返回回调返回值
+	//仅处理一次按键，如果当前按键不存在则直接返回LONG_MIN
 	long Once(void) const//不保证函数会不会抛出异常
 	{
 		Key stKetGet = GetTranslateKey();
@@ -212,6 +193,7 @@ public:
 		return it->second(it->first);
 	}
 
+	//等待至少一次成功的按键调用，如果按键不存在则持续循环，直到至少触发一次注册的按键调用
 	long AtLeastOne(void) const
 	{
 		long lRet = 0;
@@ -223,7 +205,7 @@ public:
 		return lRet;
 	}
 
-	//死循环处理按键并触发回调直到抛出异常或回调返回非0值
+	//循环处理按键并触发回调，直到抛出异常或回调返回非0值
 	long Loop(void) const
 	{
 		long lRet = 0;
@@ -247,6 +229,11 @@ public:
 	{
 		return _kbhit() != 0;
 	}
+
 };
 
+//防止泄露
+#ifdef MY_DEF_EOL
 #undef EOL
+#undef MY_DEF_EOL
+#endif // MY_DEF_EOL

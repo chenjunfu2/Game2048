@@ -20,7 +20,19 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Console_Input.hpp">
+    <ClInclude Include="Console_Input_Windows.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Console_Input_Linux.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Windows_Keys.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Linux_Keys.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="Game2048.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
   </ItemGroup>

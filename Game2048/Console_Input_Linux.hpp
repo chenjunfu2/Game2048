@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <cstdio>
 #include <cassert>
@@ -31,29 +31,6 @@ class Console_Input
 				std::uint16_t hash = u16KeyCode | escape<<8;
 				return std::hash<uint16_t>{}(hash);
 			}
-		};
-
-		struct Keys {
-			constexpr static const Key W = { 'w', false };
-			constexpr static const Key SHIFT_W = { 'W', false };
-			constexpr static const Key UP_ARROW = { 'A', true };
-			constexpr static const Key A = { 'a', false };
-			constexpr static const Key SHIFT_A = { 'A', false };
-			constexpr static const Key LEFT_ARROW = { 'D', true };
-			constexpr static const Key S = { 's', false };
-			constexpr static const Key SHIFT_S = { 'S', false };
-			constexpr static const Key DOWN_ARROW = { 'B', true };
-			constexpr static const Key D = { 'd', false };
-			constexpr static const Key SHIFT_D = { 'D', false };
-			constexpr static const Key RIGHT_ARROW = { 'C', true };
-			constexpr static const Key Y = { 'y', false };
-			constexpr static const Key N = { 'n', false };
-			constexpr static const Key Q = { 'q', false };
-			constexpr static const Key R = { 'r', false };
-			constexpr static const Key SHIFT_Y = { 'Y', false };
-			constexpr static const Key SHIFT_N = { 'N', false };
-			constexpr static const Key SHIFT_Q = { 'Q', false };
-			constexpr static const Key SHIFT_R = { 'R', false };
 		};
 
 		struct KeyHash {
@@ -157,4 +134,3 @@ class Console_Input
 	}
 
 };
-
