@@ -2,6 +2,7 @@
 
 #include <stdio.h>
 #include <stdint.h>
+#include <inttypes.h>//获取uintxx_t的对应printf格式化串
 #include <stddef.h>
 #include <random>
 #include <span>
@@ -354,7 +355,7 @@ private:
 			{
 				if (u64Elem != 0)
 				{
-					printf("│%+4llu", u64Elem);
+					printf("│%+4" PRIu64, u64Elem);//使用inttypes.h中的格式化串
 				}
 				else
 				{
