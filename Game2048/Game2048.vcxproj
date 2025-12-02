@@ -28,6 +28,16 @@
     <ClInclude Include="Linux_Keys.hpp" />
     <ClInclude Include="Windows_Keys.hpp" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.clangd" />
+    <None Include="..\.gitattributes" />
+    <None Include="..\.gitignore" />
+    <None Include="..\LICENSE" />
+    <None Include="..\README.md" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="..\CMakeLists.txt" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>16.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
