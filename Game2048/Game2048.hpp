@@ -119,14 +119,14 @@ private:
 	};
 
 private:
-	constexpr const static inline uint64_t u64Width = 4;
-	constexpr const static inline uint64_t u64Height = 4;
-	constexpr const static inline uint64_t u64TotalSize = u64Width * u64Height;
+	constexpr const static inline size_t szWidth = 4;
+	constexpr const static inline size_t szHeight = 4;
+	constexpr const static inline size_t szTotalSize = szWidth * szHeight;
 
-	uint64_t u64Tile[u64Height][u64Width];//空格子为0
-	const std::span<uint64_t, u64TotalSize> u64TileFlatView{ (uint64_t *)u64Tile, u64TotalSize };//提供二维数组的一维平坦视图
+	uint64_t u64Tile[szHeight][szWidth];//空格子为0
+	const std::span<uint64_t, szTotalSize> u64TileFlatView{ (uint64_t *)u64Tile, szTotalSize };//提供二维数组的一维平坦视图
 
-	uint64_t u64EmptyCount;//空余的的格子数
+	size_t szEmptyCount;//空余的的格子数
 	GameStatus enGameStatus;//游戏状态
 
 	uint16_t u16PrintStartX = 1;//打印起始位置X
@@ -153,23 +153,23 @@ private:
 
 	bool IsTilePosValid(const Pos &p) const
 	{
-		return	p.i64X >= 0 && p.i64X < u64Width &&
-			p.i64Y >= 0 && p.i64Y < u64Height;
+		return	p.i64X >= 0 && p.i64X < szWidth &&
+			p.i64Y >= 0 && p.i64Y < szHeight;
 	}
 
 	//====================刷出数字====================
 	bool HasPossibleMerges(void) const
 	{
 		//查找所有格子的相邻，如果没有任何相邻且数值相同的格子，那么游戏失败
-		for (uint64_t Y = 0; Y < u64Height; ++Y)
+		for (size_t Y = 0; Y < szHeight; ++Y)
 		{
-			for (uint64_t X = 0; X < u64Width; ++X)
+			for (size_t X = 0; X < szWidth; ++X)
 			{
 				uint64_t u64Cur = u64Tile[Y][X];
 
 				//向右向下检测（避免越界）
-				if (X + 1 < u64Width && u64Tile[Y][X + 1] == u64Cur ||
-					Y + 1 < u64Height && u64Tile[Y + 1][X] == u64Cur)
+				if (X + 1 < szWidth && u64Tile[Y][X + 1] == u64Cur ||
+					Y + 1 < szHeight && u64Tile[Y + 1][X] == u64Cur)
 				{
 					return true; //有可合并的
 				}
@@ -182,16 +182,16 @@ private:
 
 	bool SpawnRandomTile(void)
 	{
-		if (u64EmptyCount == 0)
+		if (szEmptyCount == 0)
 		{
 			return false;
 		}
 
 		//还有空间，递减空格子数
-		--u64EmptyCount;
+		--szEmptyCount;
 
 		//在剩余格子中均匀生成
-		auto targetPos = posDist(randGen, decltype(posDist)::param_type(0, u64EmptyCount));
+		auto targetPos = posDist(randGen, decltype(posDist)::param_type(0, szEmptyCount));
 
 		//遍历并找到第targetPos个格子
 		for (auto &it : u64TileFlatView)
@@ -213,7 +213,7 @@ private:
 		}
 
 		//检测必须在生成后，因为前面先进行递减然后才进行生成
-		if (u64EmptyCount == 0)//只要没有剩余空间，就进行合并检测
+		if (szEmptyCount == 0)//只要没有剩余空间，就进行合并检测
 		{
 			if (!HasPossibleMerges())//没有任何一个方向可以合并
 			{
@@ -265,7 +265,7 @@ private:
 		if (GetTile(posNew) == GetTile(posTarget))
 		{
 			bMerge = false;//触发合并，下一次不允许合并
-			++u64EmptyCount;//合并后更新空位计数
+			++szEmptyCount;//合并后更新空位计数
 		}
 		else
 		{
@@ -296,19 +296,19 @@ private:
 		bool bHorizontal = (dMove == Lt || dMove == Rt);
 
 		//计算外层大小
-		int64_t i64OuterEnd = bHorizontal ? u64Height : u64Width;//外层仅结束有影响，固定从0开始到结尾
+		int64_t i64OuterEnd = bHorizontal ? szHeight : szWidth;//外层仅结束有影响，固定从0开始到结尾
 
 		//计算内层大小
 		int64_t i64InnerBeg, i64InnerEnd, i64InnerStep;
 		if (dMove == Up || dMove == Lt)
 		{
 			i64InnerBeg = 1;//这里从1访问是因为第一排本身就是顶格的，没有移动的必要
-			i64InnerEnd = bHorizontal ? u64Width : u64Height;//正序上边界（不会访问）
+			i64InnerEnd = bHorizontal ? szWidth : szHeight;//正序上边界（不会访问）
 			i64InnerStep = 1;//正序
 		}
 		else
 		{
-			i64InnerBeg = (bHorizontal ? u64Width : u64Height) - 2;//这里从(bHorizontal ? u64Width : u64Height) - 2访问是因为最后一排本身就是顶格的，没有移动的必要
+			i64InnerBeg = (bHorizontal ? szWidth : szHeight) - 2;//这里从(bHorizontal ? szWidth : szHeight) - 2访问是因为最后一排本身就是顶格的，没有移动的必要
 			i64InnerEnd = -1;//倒序下边界（不会访问）
 			i64InnerStep = -1;//倒序
 		}
@@ -345,23 +345,31 @@ private:
 		uint16_t u16StartX = u16PrintStartX;
 
 		printf("\033[?25l\033[%u;%uH", u16StartY, u16StartX);//\033[?25l 隐藏光标，每次都要设置因为用户修改控制台窗口后光标可能恢复显示
+		printf("┌────┬────┬────┬────┐\033[%u;%uH", ++u16StartY, u16StartX);//打印开头行
+
+		size_t szIndexY = 0;//控制最后一行不输出中间行的计数器
 		for (auto &arrRow : u64Tile)
 		{
-			printf("---------------------\033[%u;%uH", ++u16StartY, u16StartX);
 			for (auto u64Elem : arrRow)
 			{
 				if (u64Elem != 0)
 				{
-					printf("|%-4llu", u64Elem);
+					printf("│%+4llu", u64Elem);
 				}
 				else
 				{
-					printf("|%-4c", ' ');
+					printf("│    ");//输出空格以对齐
 				}
 			}
-			printf("|\033[%u;%uH", ++u16StartY, u16StartX);
+			printf("│\033[%u;%uH", ++u16StartY, u16StartX);
+
+			if (++szIndexY != szHeight)//最后一行不输出
+			{
+				printf("├────┼────┼────┼────┤\033[%u;%uH", ++u16StartY, u16StartX);//输出中间行
+			}
 		}
-		printf("---------------------\033[%u;%uH", ++u16StartY, u16StartX);
+
+		printf("└────┴────┴────┴────┘\033[%u;%uH", ++u16StartY, u16StartX);//打印结尾行
 	}
 
 	bool ShowMessageAndPrompt(const char *pMessage, const char *pPrompt) const
@@ -371,7 +379,7 @@ private:
 		uint16_t u16StartX = u16PrintStartX;
 
 		//输出信息
-		printf("\033[%u;%uH%s", u16StartY += (u64Height * 2 + 1), u16StartX, pMessage);
+		printf("\033[%u;%uH%s", u16StartY += (szHeight * 2 + 1), u16StartX, pMessage);
 
 		//询问信息
 		printf("\033[%u;%uH%s (Y/N)", ++u16StartY, u16StartX, pPrompt);
@@ -397,7 +405,7 @@ private:
 		//重置Y
 		u16StartY = u16PrintStartY;
 		//擦除
-		ClearPrint(u16StartY += (u64Height * 2 + 1), u16StartX);
+		ClearPrint(u16StartY += (szHeight * 2 + 1), u16StartX);
 		ClearPrint(++u16StartY, u16StartX);
 
 		//最后返回
@@ -441,7 +449,7 @@ private:
 		//清除格子数据
 		std::ranges::fill(u64TileFlatView, (uint64_t)0);
 		//设置空余的格子数为最大值
-		u64EmptyCount = u64TotalSize;
+		szEmptyCount = szTotalSize;
 		//设置游戏状态为游戏中
 		enGameStatus = InGame;
 
@@ -520,7 +528,7 @@ public:
 	Game2048(uint32_t u32Seed = std::random_device{}(), uint16_t _u16PrintStartX = 1, uint16_t _u16PrintStartY = 1, double dSpawnWeights_2 = 0.9, double dSpawnWeights_4 = 0.1) :
 		u64Tile{},
 
-		u64EmptyCount(u64TotalSize),
+		szEmptyCount(szTotalSize),
 		enGameStatus(),
 
 		u16PrintStartX(_u16PrintStartX),
@@ -593,27 +601,27 @@ public:
 #ifdef _DEBUG
 	void Debug(void)
 	{
-		u64Tile[0][0] = 2;
+		u64Tile[0][0] = 0;
 		u64Tile[0][1] = 2;
-		u64Tile[0][2] = 2;
-		u64Tile[0][3] = 2;
+		u64Tile[0][2] = 4;
+		u64Tile[0][3] = 8;
 
-		u64Tile[1][0] = 2;
-		u64Tile[1][1] = 2;
-		u64Tile[1][2] = 4;
-		u64Tile[1][3] = 0;
+		u64Tile[1][0] = 16;
+		u64Tile[1][1] = 32;
+		u64Tile[1][2] = 64;
+		u64Tile[1][3] = 128;
 
-		u64Tile[2][0] = 4;
-		u64Tile[2][1] = 2;
-		u64Tile[2][2] = 2;
-		u64Tile[2][3] = 2;
+		u64Tile[2][0] = 256;
+		u64Tile[2][1] = 512;
+		u64Tile[2][2] = 1024;
+		u64Tile[2][3] = 2048;
 
-		u64Tile[3][0] = 2;
-		u64Tile[3][1] = 2;
+		u64Tile[3][0] = 4096;
+		u64Tile[3][1] = 8192;
 		u64Tile[3][2] = 0;
-		u64Tile[3][3] = 2;
+		u64Tile[3][3] = 0;
 
-		u64EmptyCount = 2;
+		szEmptyCount = 3;
 
 		PrintGameBoard();
 	}
