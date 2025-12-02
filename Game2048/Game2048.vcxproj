@@ -32,6 +32,7 @@
     <None Include="..\.clangd" />
     <None Include="..\.gitattributes" />
     <None Include="..\.gitignore" />
+    <None Include="..\cmake-build.sh" />
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
   </ItemGroup>

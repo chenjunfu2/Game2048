@@ -52,6 +52,9 @@
     <None Include="..\.clangd">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="..\cmake-build.sh">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt">

@@ -418,8 +418,8 @@ private:
 		uint16_t u16StartY = u16PrintStartY;
 		uint16_t u16StartX = u16PrintStartX;
 
-		//设置到指定位置
-		printf("\033[%u;%uH", u16StartY, u16StartX);
+		//隐藏光标、清屏并设置光标到指定绘制起始位置
+		printf("\033[?25l\033[2J\033[%u;%uH", u16StartY, u16StartX);
 
 		auto NewLine = [&](uint16_t u16LineMove = 1) -> void
 		{
