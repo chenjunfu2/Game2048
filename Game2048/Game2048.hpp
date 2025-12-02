@@ -355,7 +355,7 @@ private:
 			{
 				if (u64Elem != 0)
 				{
-					printf("│%+4" PRIu64, u64Elem);//使用inttypes.h中的格式化串
+					printf("│%4" PRIu64, u64Elem);//使用inttypes.h中的格式化串
 				}
 				else
 				{
