@@ -7,7 +7,7 @@
 开始界面：  
 ![按键说明](images/start.png)  
 游戏界面：   
-![普通模式](images/game.png)  
+![普通模式](images/game.png)
 ![普通模式2](images/game2.png)  
 测试所有数字：  
 ![测试模式](images/test.png) 
