@@ -55,6 +55,9 @@
     <None Include="..\cmake-build.sh">
       <Filter>资源文件</Filter>
     </None>
+    <None Include="D:\chenj\Documents\.editorconfig">
+      <Filter>资源文件</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt">

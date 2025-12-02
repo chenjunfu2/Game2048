@@ -35,6 +35,7 @@
     <None Include="..\cmake-build.sh" />
     <None Include="..\LICENSE" />
     <None Include="..\README.md" />
+    <None Include="D:\chenj\Documents\.editorconfig" />
   </ItemGroup>
   <ItemGroup>
     <Text Include="..\CMakeLists.txt" />
