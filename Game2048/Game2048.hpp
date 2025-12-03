@@ -325,8 +325,8 @@ private:
 			for (int64_t i64Inner = i64InnerBeg; i64Inner != i64InnerEnd; i64Inner += i64InnerStep)//根据实际水平或垂直处理内层
 			{
 				Pos p = bHorizontal ? Pos{ i64Inner, i64Outer } : Pos{ i64Outer, i64Inner };
-				bool bRet = MoveOrMergeTile(arrMoveDir[dMove], p, bMerge);//移动与合并，合并时会设置是否赢，内部不会重复检测当前游戏状态，因为可能同时出现多个2048
-				bMove |= bRet;//返回值代表是否触发过合并或移动，以确认是否需要触发重绘与新值生成
+				//返回值代表是否触发过合并或移动，以确认是否需要触发重绘与新值生成
+				bMove |= MoveOrMergeTile(arrMoveDir[dMove], p, bMerge);//移动与合并，合并时会设置是否赢，内部不会重复检测当前游戏状态，因为可能同时出现多个2048
 			}
 		}
 
