@@ -263,6 +263,7 @@ private:
 			return false;
 		}
 
+		//合并判断
 		if (GetTile(posNew) == GetTile(posTarget))
 		{
 			bMerge = false;//触发合并，下一次不允许合并
