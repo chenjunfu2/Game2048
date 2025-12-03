@@ -29,6 +29,7 @@
     <ClInclude Include="Windows_Keys.hpp" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="..\.clang-format" />
     <None Include="..\.clangd" />
     <None Include="..\.gitattributes" />
     <None Include="..\.gitignore" />

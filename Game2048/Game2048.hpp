@@ -155,7 +155,7 @@ private:
 	bool IsTilePosValid(const Pos &p) const
 	{
 		return	p.i64X >= 0 && p.i64X < szWidth &&
-			p.i64Y >= 0 && p.i64Y < szHeight;
+				p.i64Y >= 0 && p.i64Y < szHeight;
 	}
 
 	//====================刷出数字====================
@@ -396,7 +396,7 @@ private:
 		{
 			bRet = false;
 		}
-
+		
 		//擦掉刚才输出的信息
 		auto ClearPrint = [](auto Y, auto X) -> void
 		{
