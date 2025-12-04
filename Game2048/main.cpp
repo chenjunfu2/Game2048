@@ -29,7 +29,12 @@ bool EnableVirtualTerminalProcessing(void) noexcept
 
 void InitConsole(void) noexcept
 {
-	setlocale(LC_ALL, "en_US.UTF-8");//设置代码页
+	if (setlocale(LC_ALL, "en_US.UTF-8") == NULL)//设置代码页
+	{
+		fprintf(stderr, "Fatal error:setlocale failed.\n\nPress any key to exit...\n");
+		Console_Input::WaitAnyKey();
+		exit(-1);
+	}
 
 	if (!EnableVirtualTerminalProcessing())
 	{
@@ -41,7 +46,12 @@ void InitConsole(void) noexcept
 #elif defined(__linux__)
 void InitConsole(void) noexcept
 {
-	setlocale(LC_ALL, "en_US.UTF-8");//设置代码页
+	if (setlocale(LC_ALL, "en_US.UTF-8") == NULL)//设置代码页
+	{
+		fprintf(stderr, "Fatal error:setlocale failed.\n\nPress any key to exit...\n");
+		Console_Input::WaitAnyKey();
+		exit(-1);
+	}
 }
 #endif
 
