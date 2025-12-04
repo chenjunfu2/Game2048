@@ -1,7 +1,5 @@
 ﻿#include "Game2048.hpp"
 
-
-
 #if defined(_WIN32)
 	//虚拟终端序列头文件
 	#include <Windows.h>
