@@ -1,5 +1,7 @@
 ﻿#include "Game2048.hpp"
 
+#include <locale.h>//setlocale
+
 #if defined(_WIN32)
 	//虚拟终端序列头文件
 	#include <Windows.h>
@@ -27,6 +29,8 @@ bool EnableVirtualTerminalProcessing(void) noexcept
 
 void InitConsole(void) noexcept
 {
+	setlocale(LC_ALL, "en_US.UTF-8");//设置代码页
+
 	if (!EnableVirtualTerminalProcessing())
 	{
 		fprintf(stderr, "Fatal error:\nConsole virtual terminal initialization failed.\n\nPress any key to exit...\n");
@@ -37,7 +41,7 @@ void InitConsole(void) noexcept
 #elif defined(__linux__)
 void InitConsole(void) noexcept
 {
-	return;
+	setlocale(LC_ALL, "en_US.UTF-8");//设置代码页
 }
 #endif
 
