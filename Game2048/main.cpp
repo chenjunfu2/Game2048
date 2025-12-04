@@ -31,14 +31,14 @@
 		if (setlocale(LC_ALL, "en_US.UTF-8") == NULL)//设置代码页
 		{
 			fprintf(stderr, "Fatal error:setlocale failed.\n\nPress any key to exit...\n");
-			Console_Input::WaitAnyKey();
+			Console_Input::WaitAnyKey();//此功能仅在Windows下为任意键
 			exit(-1);
 		}
 	
 		if (!EnableVirtualTerminalProcessing())
 		{
 			fprintf(stderr, "Fatal error:\nConsole virtual terminal initialization failed.\n\nPress any key to exit...\n");
-			Console_Input::WaitAnyKey();
+			Console_Input::WaitAnyKey();//此功能仅在Windows下为任意键
 			exit(-1);
 		}
 	}
