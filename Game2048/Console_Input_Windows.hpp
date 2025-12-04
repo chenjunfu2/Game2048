@@ -14,9 +14,9 @@
 
 //保证未定义的情况下才定义，且在自己定义的情况下清除定义
 #ifndef EOL
-#define EOL -1
-#define MY_DEF_EOL
-#endif // !EOL
+	#define EOL -1
+	#define MY_DEF_EOL
+#endif// !EOL
 
 class Console_Input//用户交互
 {
@@ -46,7 +46,7 @@ public:
 		size_t Hash() const noexcept
 		{
 			//正常情况下，u16KeyCode只会在0~255，而LeadCode只会在0~3
-			uint16_t u16HashCode = 
+			uint16_t u16HashCode =
 				(u16KeyCode & 0x00FF) |//留下低8bit
 				((enLeadCode & 0x0003) << 8);//把低2bit移动到8bit前面组成10bit
 
@@ -63,21 +63,23 @@ public:
 		}
 	};
 
-	using CallBackFunc = long(const Key& stKey);
+	using CallBackFunc = long(const Key &stKey);
 	using Func = std::function<CallBackFunc>;
+
 private:
 	std::unordered_map<Key, Func, KeyHash> mapRegisterTable;
+
 public:
 	Console_Input(void) = default;
 	~Console_Input(void) = default;
 
 	//可以移动
 	Console_Input(Console_Input &&) = default;
-	Console_Input &operator = (Console_Input &&) = default;
+	Console_Input &operator=(Console_Input &&) = default;
 
 	//禁止拷贝
 	Console_Input(const Console_Input &) = delete;
-	Console_Input &operator = (const Console_Input &) = delete;
+	Console_Input &operator=(const Console_Input &) = delete;
 
 	//测试按键的值
 	[[noreturn]] static void KeyCodeTest(void) noexcept//函数不会返回
@@ -232,11 +234,10 @@ public:
 	{
 		return _kbhit() != 0;
 	}
-
 };
 
 //防止泄露
 #ifdef MY_DEF_EOL
-#undef EOL
-#undef MY_DEF_EOL
-#endif // MY_DEF_EOL
+	#undef EOL
+	#undef MY_DEF_EOL
+#endif// MY_DEF_EOL

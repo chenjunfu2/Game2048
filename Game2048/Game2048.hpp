@@ -10,11 +10,11 @@
 
 //根据平台切换输入
 #if defined(_WIN32)
-#include "Console_Input_Windows.hpp"
-#include "Windows_Keys.hpp"
+	#include "Console_Input_Windows.hpp"
+	#include "Windows_Keys.hpp"
 #elif defined(__linux__)
-#include "Console_Input_Linux.hpp"
-#include "Linux_Keys.hpp"
+	#include "Console_Input_Linux.hpp"
+	#include "Linux_Keys.hpp"
 #endif
 
 /*
@@ -68,8 +68,7 @@ private:
 	public:
 		Pos operator+(const Pos &_Right) const
 		{
-			return
-			{
+			return {
 				i64X + _Right.i64X,
 				i64Y + _Right.i64Y,
 			};
@@ -77,8 +76,7 @@ private:
 
 		Pos operator-(const Pos &_Right) const
 		{
-			return
-			{
+			return {
 				i64X - _Right.i64X,
 				i64Y - _Right.i64Y,
 			};
@@ -111,12 +109,11 @@ private:
 		}
 	};
 
-	constexpr const static inline Pos arrMoveDir[Direction::Enum_End] =
-	{
-		{ 0,-1},
-		{ 0, 1},
-		{-1, 0},
-		{ 1, 0},
+	constexpr const static inline Pos arrMoveDir[Direction::Enum_End] = {
+		{ 0, -1 },
+		{ 0, 1 },
+		{ -1, 0 },
+		{ 1, 0 },
 	};
 
 private:
@@ -154,8 +151,8 @@ private:
 
 	bool IsTilePosValid(const Pos &p) const
 	{
-		return	p.i64X >= 0 && p.i64X < szWidth &&
-				p.i64Y >= 0 && p.i64Y < szHeight;
+		return p.i64X >= 0 && p.i64X < szWidth &&
+			   p.i64Y >= 0 && p.i64Y < szHeight;
 	}
 
 	//====================刷出数字====================
@@ -172,7 +169,7 @@ private:
 				if (X + 1 < szWidth && u64Tile[Y][X + 1] == u64Cur ||
 					Y + 1 < szHeight && u64Tile[Y + 1][X] == u64Cur)
 				{
-					return true; //有可合并的
+					return true;//有可合并的
 				}
 			}
 		}
@@ -397,7 +394,7 @@ private:
 		{
 			bRet = false;
 		}
-		
+
 		//擦掉刚才输出的信息
 		auto ClearPrint = [](auto Y, auto X) -> void
 		{
@@ -428,16 +425,26 @@ private:
 			printf("\033[%u;%uH", u16StartY += u16LineMove, u16StartX);
 		};
 
-		printf("========2048 Game========"); NewLine();
-		printf("--------Key Guide--------"); NewLine();
-		printf(" W / Up Arrow    -> Up"); NewLine();
-		printf(" S / Down Arrow  -> Down"); NewLine();
-		printf(" A / Left Arrow  -> Left"); NewLine();
-		printf(" D / Right Arrow -> Right"); NewLine();
-		printf("-------------------------"); NewLine();
-		printf(" R -> Restart"); NewLine();
-		printf(" Q -> Quit"); NewLine();
-		printf("-------------------------"); NewLine(2);
+		printf("========2048 Game========");
+		NewLine();
+		printf("--------Key Guide--------");
+		NewLine();
+		printf(" W / Up Arrow    -> Up");
+		NewLine();
+		printf(" S / Down Arrow  -> Down");
+		NewLine();
+		printf(" A / Left Arrow  -> Left");
+		NewLine();
+		printf(" D / Right Arrow -> Right");
+		NewLine();
+		printf("-------------------------");
+		NewLine();
+		printf(" R -> Restart");
+		NewLine();
+		printf(" Q -> Quit");
+		NewLine();
+		printf("-------------------------");
+		NewLine(2);
 
 		printf("Press Any key To Start...");
 
@@ -628,5 +635,4 @@ public:
 		PrintGameBoard();
 	}
 #endif
-
 };

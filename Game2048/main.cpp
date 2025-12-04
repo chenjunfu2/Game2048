@@ -1,8 +1,8 @@
 ﻿#include "Game2048.hpp"
 
 #if defined(_WIN32)
-//虚拟终端序列头文件
-#include <Windows.h>
+	//虚拟终端序列头文件
+	#include <Windows.h>
 
 //启用虚拟终端序列
 bool EnableVirtualTerminalProcessing(void) noexcept
@@ -56,7 +56,7 @@ int main(void)
 #ifdef _DEBUG
 	game.Debug();
 #endif
-	
+
 	//游戏循环
 	while (game.Loop())
 	{

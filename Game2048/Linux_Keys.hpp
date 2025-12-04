@@ -14,10 +14,10 @@ struct Keys
 	constexpr static const Console_Input::Key SHIFT_S = { 'S', false };
 	constexpr static const Console_Input::Key SHIFT_D = { 'D', false };
 
-	constexpr static const Console_Input::Key UP_ARROW =	{ 'A', true };
-	constexpr static const Console_Input::Key LEFT_ARROW =	{ 'D', true };
-	constexpr static const Console_Input::Key DOWN_ARROW =	{ 'B', true };
-	constexpr static const Console_Input::Key RIGHT_ARROW =	{ 'C', true };
+	constexpr static const Console_Input::Key UP_ARROW = { 'A', true };
+	constexpr static const Console_Input::Key LEFT_ARROW = { 'D', true };
+	constexpr static const Console_Input::Key DOWN_ARROW = { 'B', true };
+	constexpr static const Console_Input::Key RIGHT_ARROW = { 'C', true };
 
 	constexpr static const Console_Input::Key Y = { 'y', false };
 	constexpr static const Console_Input::Key N = { 'n', false };

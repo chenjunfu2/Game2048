@@ -1,4 +1,4 @@
-﻿#pragma once 
+﻿#pragma once
 
 #include "Console_Input_Windows.hpp"
 
@@ -14,10 +14,10 @@ struct Keys
 	constexpr static const Console_Input::Key SHIFT_S = { 'S', Console_Input::Code_NL };
 	constexpr static const Console_Input::Key SHIFT_D = { 'D', Console_Input::Code_NL };
 
-	constexpr static const Console_Input::Key UP_ARROW =	{ 72, Console_Input::Code_E0 };
-	constexpr static const Console_Input::Key LEFT_ARROW =	{ 75, Console_Input::Code_E0 };
-	constexpr static const Console_Input::Key DOWN_ARROW =	{ 80, Console_Input::Code_E0 };
-	constexpr static const Console_Input::Key RIGHT_ARROW =	{ 77, Console_Input::Code_E0 };
+	constexpr static const Console_Input::Key UP_ARROW = { 72, Console_Input::Code_E0 };
+	constexpr static const Console_Input::Key LEFT_ARROW = { 75, Console_Input::Code_E0 };
+	constexpr static const Console_Input::Key DOWN_ARROW = { 80, Console_Input::Code_E0 };
+	constexpr static const Console_Input::Key RIGHT_ARROW = { 77, Console_Input::Code_E0 };
 
 	constexpr static const Console_Input::Key Y = { 'y', Console_Input::Code_NL };
 	constexpr static const Console_Input::Key N = { 'n', Console_Input::Code_NL };
