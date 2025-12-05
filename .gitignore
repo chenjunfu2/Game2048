@@ -365,3 +365,7 @@ build
 
 # other
 temp/
+
+# xmake build files
+.xmake/
+
