@@ -80,8 +80,16 @@ public:
 		{
 		case 0x1b:
 			ret.escape = true;
+
 			tmp = std::getchar();
+			if(tmp >= 0 && tmp <= 9)
+			{
+				ret.u16KeyCode = tmp;
+				break;
+			}
+			
 			assert(tmp == '[');// This is guaranteed to be '['
+
 			ret.u16KeyCode = std::getchar();
 			if (ret.u16KeyCode >= '0' && ret.u16KeyCode <= '9')
 			{
@@ -90,7 +98,6 @@ public:
 				assert(tmp == '~');
 			}
 			break;
-
 		case EOF:
 			throw std::runtime_error("Error: EOF encountered in stdin");
 		default:
