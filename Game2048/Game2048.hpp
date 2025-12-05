@@ -37,6 +37,11 @@
 
 一旦获得任意一个相加后的值为2048的数字，则游戏成功。
 如果没有任何空白的移动空间，且没有任何相邻的数可以合并，则游戏失败。
+
+分数计算：
+每次产生合并时，合并的值增加到分数上
+比如一次移动中，2与2合并得到4，当前加4分
+或者一次移动中，4与4合并得到8，2与2合并得到4，当前加12分
 */
 
 
@@ -125,6 +130,7 @@ private:
 	const std::span<uint64_t, szTotalSize> u64TileFlatView{ (uint64_t *)u64Tile, szTotalSize };//提供二维数组的一维平坦视图
 
 	size_t szEmptyCount;//空余的的格子数
+	uint64_t u64GameScore;//游戏分数
 	GameStatus enGameStatus;//游戏状态
 
 	uint16_t u16PrintStartX = 1;//打印起始位置X
@@ -189,7 +195,7 @@ private:
 		--szEmptyCount;
 
 		//在剩余格子中均匀生成
-		auto targetPos = posDist(randGen, decltype(posDist)::param_type(0, szEmptyCount));
+		auto targetPos = posDist(randGen, decltype(posDist)::param_type(0, szEmptyCount));//因为取到端点，所以前面先递减
 
 		//遍历并找到第targetPos个格子
 		for (auto &it : u64TileFlatView)
@@ -260,23 +266,28 @@ private:
 			return false;
 		}
 
+		//引用数据
+		auto &valNew = GetTile(posNew);
+		auto &valTarget = GetTile(posTarget);
+
 		//合并判断
-		if (GetTile(posNew) == GetTile(posTarget))
+		if (valNew == valTarget)
 		{
 			bMerge = false;//触发合并，下一次不允许合并
 			++szEmptyCount;//合并后更新空位计数
+			u64GameScore += valNew + valTarget;//合并后更新分数
 		}
 		else
 		{
 			bMerge = true;//本次无合并，下一次可以触发合并
 		}
 
-		//直接把值加到当前位置
+		//直接把值加到当前位置，然后清除原先的值
 		//这样做，如果当前是0就相当于把值移动到当前位置，否则相当于合并值到当前位置，不用区分其他情况
-		GetTile(posNew) += GetTile(posTarget);
-		GetTile(posTarget) = 0;//清除原先的值
+		valNew += valTarget;
+		valTarget = 0;
 
-		if (GetTile(posNew) == 2048)//如果任何一个合并获得2048
+		if (valNew == 2048)//如果任何一个合并获得2048
 		{
 			enGameStatus = WinGame;//则设置游戏状态为赢
 		}
@@ -343,7 +354,11 @@ private:
 		uint16_t u16StartY = u16PrintStartY;
 		uint16_t u16StartX = u16PrintStartX;
 
-		printf("\033[?25l\033[%u;%uH", u16StartY, u16StartX);//\033[?25l 隐藏光标，每次都要设置因为用户修改控制台窗口后光标可能恢复显示
+		//\033[?25l 隐藏光标，每次都要设置因为用户修改控制台窗口后光标可能恢复显示
+		//移动到指定起始坐标
+		printf("\033[?25l\033[%u;%uH", u16StartY, u16StartX);
+
+		printf("Score:[%" PRIu64 "]\033[%u;%uH", u64GameScore, ++u16StartY, u16StartX);//打印分数
 		printf("┌────┬────┬────┬────┐\033[%u;%uH", ++u16StartY, u16StartX);//打印开头行
 
 		size_t szIndexY = 0;//控制最后一行不输出中间行的计数器
@@ -373,12 +388,14 @@ private:
 
 	bool ShowMessageAndPrompt(const char *pMessage, const char *pPrompt) const
 	{
+		//(szHeight * 2 + 1)得到游戏界面高度的后一行位置，再次+1跳过分数显示行
+		const uint16_t u16MsgStartY = u16PrintStartY + (szHeight * 2 + 1) + 1;
 		//缓存一下，不要修改原始变量
-		uint16_t u16StartY = u16PrintStartY;
+		uint16_t u16StartY = u16MsgStartY;
 		uint16_t u16StartX = u16PrintStartX;
 
 		//输出信息
-		printf("\033[%u;%uH%s", u16StartY += (szHeight * 2 + 1), u16StartX, pMessage);
+		printf("\033[%u;%uH%s", u16StartY, u16StartX, pMessage);
 
 		//询问信息
 		printf("\033[%u;%uH%s (Y/N)", ++u16StartY, u16StartX, pPrompt);
@@ -402,9 +419,9 @@ private:
 		};
 
 		//重置Y
-		u16StartY = u16PrintStartY;
+		u16StartY = u16MsgStartY;
 		//擦除
-		ClearPrint(u16StartY += (szHeight * 2 + 1), u16StartX);
+		ClearPrint(u16StartY, u16StartX);
 		ClearPrint(++u16StartY, u16StartX);
 
 		//最后返回
@@ -459,12 +476,17 @@ private:
 		std::ranges::fill(u64TileFlatView, (uint64_t)0);
 		//设置空余的格子数为最大值
 		szEmptyCount = szTotalSize;
+		//设置游戏分数为0
+		u64GameScore = 0;
 		//设置游戏状态为游戏中
 		enGameStatus = InGame;
 
 		//在地图中随机两点生成
 		SpawnRandomTile();
 		SpawnRandomTile();
+
+		//清除屏幕
+		printf("\033[2J\033[H");
 
 		//打印一次
 		PrintGameBoard();
@@ -538,6 +560,7 @@ public:
 		u64Tile{},
 
 		szEmptyCount(szTotalSize),
+		u64GameScore(0),
 		enGameStatus(),
 
 		u16PrintStartX(_u16PrintStartX),
@@ -631,6 +654,7 @@ public:
 		u64Tile[3][3] = 0;
 
 		szEmptyCount = 3;
+		u64GameScore = 0;
 
 		PrintGameBoard();
 	}
