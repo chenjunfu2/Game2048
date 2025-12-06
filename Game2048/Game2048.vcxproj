@@ -24,6 +24,7 @@
   <ItemGroup>
     <ClInclude Include="Console_Input_Linux.hpp" />
     <ClInclude Include="Console_Input_Windows.hpp" />
+    <ClInclude Include="Console_Output.hpp" />
     <ClInclude Include="Game2048.hpp" />
     <ClInclude Include="Linux_Keys.hpp" />
     <ClInclude Include="Windows_Keys.hpp" />

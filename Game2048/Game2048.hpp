@@ -17,6 +17,8 @@
 	#include "Linux_Keys.hpp"
 #endif
 
+#include "Console_Output.hpp"
+
 /*
 游戏规则:
 
@@ -133,14 +135,12 @@ private:
 	uint64_t u64GameScore;//游戏分数
 	GameStatus enGameStatus;//游戏状态
 
-	uint16_t u16PrintStartX = 1;//打印起始位置X
-	uint16_t u16PrintStartY = 1;//打印起始位置Y
-
-	Console_Input ci;//按键注册
-
 	std::mt19937_64 randGen;//梅森旋转算法随机数生成器
 	std::discrete_distribution<uint64_t> valueDist;//值生成-离散分布
 	std::uniform_int_distribution<uint64_t> posDist;//坐标生成-均匀分布
+
+	Console_Input &ci;//输入
+	Console_Output &co;//输出
 
 private:
 	//====================辅助函数====================
@@ -350,16 +350,15 @@ private:
 	//====================打印信息====================
 	void PrintGameBoard(void) const//控制台起始坐标，注意不是从0开始的，行列都从1开始
 	{
-		//缓存一下，不要修改原始变量
-		uint16_t u16StartY = u16PrintStartY;
-		uint16_t u16StartX = u16PrintStartX;
+		co.SetCursorBase();//回到初始位置
+#if defined(_WIN32)//仅Windows下每次都要隐藏，否则窗口改变会自动重新显示
+		co.HideCursor();
+#endif// defined(_WIN32)
 
-		//\033[?25l 隐藏光标，每次都要设置因为用户修改控制台窗口后光标可能恢复显示
-		//移动到指定起始坐标
-		printf("\033[?25l\033[%u;%uH", u16StartY, u16StartX);
-
-		printf("Score:[%" PRIu64 "]\033[%u;%uH", u64GameScore, ++u16StartY, u16StartX);//打印分数
-		printf("┌────┬────┬────┬────┐\033[%u;%uH", ++u16StartY, u16StartX);//打印开头行
+		printf("Score:[%" PRIu64 "]", u64GameScore);//打印分数
+		co.NextLine();
+		printf("┌────┬────┬────┬────┐");//打印开头行
+		co.NextLine();
 
 		size_t szIndexY = 0;//控制最后一行不输出中间行的计数器
 		for (auto &arrRow : u64Tile)
@@ -375,33 +374,39 @@ private:
 					printf("│    ");//输出空格以对齐
 				}
 			}
-			printf("│\033[%u;%uH", ++u16StartY, u16StartX);
+			printf("│");
+			co.NextLine();
 
 			if (++szIndexY != szHeight)//最后一行不输出
 			{
-				printf("├────┼────┼────┼────┤\033[%u;%uH", ++u16StartY, u16StartX);//输出中间行
+				printf("├────┼────┼────┼────┤");//输出中间行
+				co.NextLine();
 			}
 		}
 
-		printf("└────┴────┴────┴────┘\033[%u;%uH", ++u16StartY, u16StartX);//打印结尾行
+		printf("└────┴────┴────┴────┘");//打印结尾行
+		co.NextLine();
 	}
 
 	bool ShowMessageAndPrompt(const char *pMessage, const char *pPrompt) const
 	{
-		//(szHeight * 2 + 1)得到游戏界面高度的后一行位置，再次+1跳过分数显示行
-		const uint16_t u16MsgStartY = u16PrintStartY + (szHeight * 2 + 1) + 1;
-		//缓存一下，不要修改原始变量
-		uint16_t u16StartY = u16MsgStartY;
-		uint16_t u16StartX = u16PrintStartX;
+		//co.SetCursorBase();//不用回到初始位置，当前位置即为输出的下一行
+#if defined(_WIN32)//仅Windows下每次都要隐藏，否则窗口改变会自动重新显示
+		co.HideCursor();
+#endif// defined(_WIN32)
 
 		//输出信息
-		printf("\033[%u;%uH%s", u16StartY, u16StartX, pMessage);
+		printf("%s", pMessage);
+		co.NextLine();
 
 		//询问信息
-		printf("\033[%u;%uH%s (Y/N)", ++u16StartY, u16StartX, pPrompt);
+		printf("%s (Y/N)", pPrompt);
+		co.NextLine();
+
+		//等待按键
 		auto waitKey = ci.WaitForKeys({ Keys::Y, Keys::SHIFT_Y, Keys::N, Keys::SHIFT_N });
 
-		//保存按键信息（是或否）
+		//保存按键信息
 		bool bRet = false;
 		if (waitKey == Keys::Y || waitKey == Keys::SHIFT_Y)
 		{
@@ -413,16 +418,12 @@ private:
 		}
 
 		//擦掉刚才输出的信息
-		auto ClearPrint = [](auto Y, auto X) -> void
-		{
-			printf("\033[%u;%uH\033[2K", Y, X);//清空整行
-		};
-
-		//重置Y
-		u16StartY = u16MsgStartY;
-		//擦除
-		ClearPrint(u16StartY, u16StartX);
-		ClearPrint(++u16StartY, u16StartX);
+		//第一行
+		co.PrevLine();
+		co.ClearLine();
+		//第二行
+		co.PrevLine();
+		co.ClearLine();
 
 		//最后返回
 		return bRet;
@@ -430,43 +431,42 @@ private:
 
 	void PrintKeyInfo(void) const
 	{
-		//缓存一下，不要修改原始变量
-		uint16_t u16StartY = u16PrintStartY;
-		uint16_t u16StartX = u16PrintStartX;
+		//清屏并设置光标到指定绘制起始位置
+		co.ClearScreen();
+		co.SetCursorBase();
+#if defined(_WIN32)//仅Windows下每次都要隐藏，否则窗口改变会自动重新显示
+		co.HideCursor();
+#endif// defined(_WIN32)
 
-		//隐藏光标、清屏并设置光标到指定绘制起始位置
-		printf("\033[?25l\033[2J\033[%u;%uH", u16StartY, u16StartX);
-
-		auto NewLine = [&](uint16_t u16LineMove = 1) -> void
-		{
-			printf("\033[%u;%uH", u16StartY += u16LineMove, u16StartX);
-		};
-
+		//输出
 		printf("========2048 Game========");
-		NewLine();
+		co.NextLine();
 		printf("--------Key Guide--------");
-		NewLine();
+		co.NextLine();
 		printf(" W / Up Arrow    -> Up");
-		NewLine();
+		co.NextLine();
 		printf(" S / Down Arrow  -> Down");
-		NewLine();
+		co.NextLine();
 		printf(" A / Left Arrow  -> Left");
-		NewLine();
+		co.NextLine();
 		printf(" D / Right Arrow -> Right");
-		NewLine();
+		co.NextLine();
 		printf("-------------------------");
-		NewLine();
+		co.NextLine();
 		printf(" R -> Restart");
-		NewLine();
+		co.NextLine();
 		printf(" Q -> Quit");
-		NewLine();
+		co.NextLine();
 		printf("-------------------------");
-		NewLine(2);
+		co.NextLine(2);
 
 		printf("Press Any key To Start...");
+		co.NextLine();
 
+		//等待任意键
 		ci.WaitAnyKey();
-		printf("\033[2J\033[H");//清空屏幕并把光标回到左上角
+		//清空屏幕
+		co.ClearScreen();
 	}
 
 	//====================重置游戏====================
@@ -556,21 +556,26 @@ private:
 
 public:
 	//构造
-	Game2048(uint32_t u32Seed = std::random_device{}(), uint16_t _u16PrintStartX = 1, uint16_t _u16PrintStartY = 1, double dSpawnWeights_2 = 0.9, double dSpawnWeights_4 = 0.1) :
+	Game2048(Console_Input &_ci, Console_Output &_co, uint32_t u32Seed = std::random_device{}(), double dSpawnWeights_2 = 0.9, double dSpawnWeights_4 = 0.1) :
 		u64Tile{},
 
 		szEmptyCount(szTotalSize),
 		u64GameScore(0),
 		enGameStatus(),
 
-		u16PrintStartX(_u16PrintStartX),
-		u16PrintStartY(_u16PrintStartY),
-
 		randGen(u32Seed),
 		valueDist({ dSpawnWeights_2, dSpawnWeights_4 }),
-		posDist()
-	{}
-	~Game2048(void) = default;//默认析构
+		posDist(),
+
+		ci(_ci),
+		co(_co)
+	{
+		co.HideCursor();//隐藏光标
+	}
+	~Game2048(void)
+	{
+		co.ShowCursor();//显示光标
+	}
 
 	//删除移动、拷贝方式
 	Game2048(const Game2048 &) = delete;

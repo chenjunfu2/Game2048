@@ -35,6 +35,9 @@
     <ClInclude Include="Game2048.hpp">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="Console_Output.hpp">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="..\.gitattributes">
