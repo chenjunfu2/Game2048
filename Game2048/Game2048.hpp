@@ -7,6 +7,7 @@
 #include <random>
 #include <span>
 #include <algorithm>
+#include <assert.h>
 
 //根据平台切换输入
 #if defined(_WIN32)
@@ -116,13 +117,6 @@ private:
 		}
 	};
 
-	constexpr const static inline Pos arrMoveDir[Direction::Enum_End] = {
-		{ 0, -1 },
-		{ 0, 1 },
-		{ -1, 0 },
-		{ 1, 0 },
-	};
-
 private:
 	constexpr const static inline size_t szWidth = 4;
 	constexpr const static inline size_t szHeight = 4;
@@ -229,68 +223,61 @@ private:
 	}
 
 	//====================移动合并====================
-	bool MoveOrMergeTile(const Pos &posMove, const Pos &posTarget, bool &bMerge)
+	bool MoveOrMergeTile(const Pos &posTarget, Pos &posLast, Direction dMove)
 	{
-		if (GetTile(posTarget) == 0)
+		if (GetTile(posTarget) == 0)//直到非0
 		{
 			return false;
 		}
 
-		//新位置
-		Pos posNew = posTarget;
-		while (true)
+		//反向移动量数组
+		constexpr const static Pos arrReverseMoveDeltas[Direction::Enum_End] =
 		{
-			Pos posNext = posNew + posMove;//计算下一位置
-			if (!IsTilePosValid(posNext))//如果下一位置超出范围
-			{
-				break;//则跳过
-			}
+			{ 0, 1 },//[Up] -> Dn
+			{ 0,-1 },//[Dn] -> Up
+			
+			{ 1, 0 },//[Lt] -> Rt
+			{-1, 0 },//[Rt] -> Lt
+		};
 
-			if (GetTile(posNext) != 0)//如果下一位置非0
-			{
-				if (!bMerge || GetTile(posNext) != GetTile(posTarget))//当前不允许合并或值无法合并
-				{
-					break;//则跳过
-				}
-			}
-
-			//反之，当前索引没超出范围且posNext为0或可以合并
-
-			//移动到下一位置
-			posNew = posNext;
-		}
-
-		//根本没有移动
-		if (posNew == posTarget)
-		{
-			return false;
-		}
-
-		//引用数据
-		auto &valNew = GetTile(posNew);
 		auto &valTarget = GetTile(posTarget);
+		auto &valLast = GetTile(posLast);
 
-		//合并判断
-		if (valNew == valTarget)
+		if (valLast == 0)//空位置，移动
 		{
-			bMerge = false;//触发合并，下一次不允许合并
+			valLast = valTarget;//移动后可能下次会触发合并，无须更新posLast
+		}
+		else if (valLast == valTarget)//值相等，合并
+		{
+			valLast += valTarget;
+			posLast += arrReverseMoveDeltas[dMove];//合并后下次不能判断当前位置，移动到新位置
+
 			++szEmptyCount;//合并后更新空位计数
-			u64GameScore += valNew + valTarget;//合并后更新分数
+			u64GameScore += valLast;//合并后更新分数
+
+			//如果任何一个合并获得2048
+			if (valLast == 2048)
+			{
+				enGameStatus = WinGame;//则设置游戏状态为赢
+			}
 		}
-		else
+		else//值不相等，也不为空，移动到旁边堆放
 		{
-			bMerge = true;//本次无合并，下一次可以触发合并
+			//当前位置无法使用，移动到新位置
+			posLast += arrReverseMoveDeltas[dMove];
+			if (posLast == posTarget)//如果新位置和当前位置相同则跳过
+			{
+				return false;
+			}
+			
+			//进行移动
+			auto &valNewLast = GetTile(posLast);
+			assert(valNewLast == 0);//这里必然是0
+			valNewLast = valTarget;//移动后下次可能触发合并，无须更新posLast
 		}
 
-		//直接把值加到当前位置，然后清除原先的值
-		//这样做，如果当前是0就相当于把值移动到当前位置，否则相当于合并值到当前位置，不用区分其他情况
-		valNew += valTarget;
+		//清空原始位置
 		valTarget = 0;
-
-		if (valNew == 2048)//如果任何一个合并获得2048
-		{
-			enGameStatus = WinGame;//则设置游戏状态为赢
-		}
 
 		return true;
 	}
@@ -309,16 +296,18 @@ private:
 		int64_t i64OuterEnd = bHorizontal ? szHeight : szWidth;//外层仅结束有影响，固定从0开始到结尾
 
 		//计算内层大小
-		int64_t i64InnerBeg, i64InnerEnd, i64InnerStep;
-		if (dMove == Up || dMove == Lt)
+		int64_t i64InnerFirst, i64InnerBeg, i64InnerEnd, i64InnerStep;
+		if (dMove == Up || dMove == Lt)//正序
 		{
-			i64InnerBeg = 1;//这里从1访问是因为第一排本身就是顶格的，没有移动的必要
+			i64InnerFirst = 0;//第一个元素的索引
+			i64InnerBeg = i64InnerFirst + 1;//这里从1访问是因为第一排本身就是顶格的，没有移动的必要
 			i64InnerEnd = bHorizontal ? szWidth : szHeight;//正序上边界（不会访问）
-			i64InnerStep = 1;//正序
+			i64InnerStep = i64InnerFirst + 1;//正序
 		}
-		else
+		else//倒序
 		{
-			i64InnerBeg = (bHorizontal ? szWidth : szHeight) - 2;//这里从(bHorizontal ? szWidth : szHeight) - 2访问是因为最后一排本身就是顶格的，没有移动的必要
+			i64InnerFirst = (bHorizontal ? szWidth : szHeight) - 1;//最后一个元素的索引
+			i64InnerBeg = i64InnerFirst - 1;//这里从i64InnerFirst - 1访问是因为最后一排本身就是顶格的，没有移动的必要
 			i64InnerEnd = -1;//倒序下边界（不会访问）
 			i64InnerStep = -1;//倒序
 		}
@@ -330,12 +319,27 @@ private:
 		{
 			//默认状态为可合并，对于移动方向的一排中的每两个只能存在一次合并，多排之间互不影响
 			//实际上，只要确认上一次是否发生过合并，如果发生过，那么本次不允许合并，就会进行堆放，下次则继续允许合并，这样就能完成防止重复合并的逻辑
-			bool bMerge = true;
+			
+			//这里上一个合并的坐标初始化为这一行的起始坐标
+			Pos pLast = bHorizontal ? Pos{ i64InnerFirst, i64Outer } : Pos{ i64Outer, i64InnerFirst };
+			//目标存在外层循环固定值，根据移动方向初始化
+			Pos pTarget = bHorizontal ? Pos{ 0, i64Outer } : Pos{ i64Outer, 0 };
+
 			for (int64_t i64Inner = i64InnerBeg; i64Inner != i64InnerEnd; i64Inner += i64InnerStep)//根据实际水平或垂直处理内层
 			{
-				Pos p = bHorizontal ? Pos{ i64Inner, i64Outer } : Pos{ i64Outer, i64Inner };
+				//根据移动方向更新变动的值
+				if (bHorizontal)
+				{
+					pTarget.i64X = i64Inner;
+				}
+				else
+				{
+					pTarget.i64Y = i64Inner;
+				}
+
+				//移动与合并，合并时会设置是否赢，内部不会重复检测当前游戏状态，因为可能同时出现多个2048
 				//返回值代表是否触发过合并或移动，以确认是否需要触发重绘与新值生成
-				bMove |= MoveOrMergeTile(arrMoveDir[dMove], p, bMerge);//移动与合并，合并时会设置是否赢，内部不会重复检测当前游戏状态，因为可能同时出现多个2048
+				bMove |= MoveOrMergeTile(pTarget, pLast, dMove);
 			}
 		}
 
