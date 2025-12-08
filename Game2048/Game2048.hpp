@@ -663,7 +663,7 @@ public:
 		u64Tile[3][3] = 0;
 
 		szEmptyCount = 3;
-		u64GameScore = 0;
+		u64GameScore = UINT64_MAX;
 
 		PrintGameBoard();
 	}
