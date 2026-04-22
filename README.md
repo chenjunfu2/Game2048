@@ -1,4 +1,7 @@
 # 控制台2048小游戏
+[![GitHub Releases](https://shields.io/github/v/release/chenjunfu2/Game2048)](https://github.com/chenjunfu2/Game2048/releases)
+[![GitHub Releases downloads](https://shields.io/github/downloads/chenjunfu2/Game2048/total)](https://github.com/chenjunfu2/Game2048/releases)
+[![GitHub Repo stars](https://shields.io/github/stars/chenjunfu2/Game2048)](https://github.com/chenjunfu2/Game2048/)  
 使用ANSI终端转义序列（Virtual Terminal Processing）  
 支持Windows与Linux平台（Windows可在Releases下获取已编译版本，Linux请自行编译）  
 语言版本：CPP20  
